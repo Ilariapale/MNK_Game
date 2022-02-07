@@ -56,7 +56,7 @@ public class RandomPlayer  implements MNKPlayer {
 	/**
    * Selects a random cell in <code>FC</code>
    */
-	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
+	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) { //free cells and marked cells
 		// Uncomment to chech the move timeout
 		/* 
 		try {
