@@ -26,8 +26,10 @@ import java.util.Random;
 
 /**
  * Software player only a bit smarter than random.
- * <p> It can detect a single-move win or loss. In all the other cases behaves randomly.
- * </p> 
+ * <p>
+ * It can detect a single-move win or loss. In all the other cases behaves
+ * randomly.
+ * </p>
  */
 public class SignoraCarla implements MNKPlayer {
 	private Random rand;
@@ -35,6 +37,7 @@ public class SignoraCarla implements MNKPlayer {
 	private MNKGameState myWin;
 	private MNKGameState yourWin;
 	private int TIMEOUT;
+	private long startingTime;
 
 	/**
 	 * Default empty constructor
@@ -42,74 +45,133 @@ public class SignoraCarla implements MNKPlayer {
 	public SignoraCarla() {
 	}
 
-
 	public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 		// New random seed for each game
-		rand    = new Random(System.currentTimeMillis()); 
-		B       = new MNKBoard(M,N,K);
-		myWin   = first ? MNKGameState.WINP1 : MNKGameState.WINP2; 
+		rand = new Random(System.currentTimeMillis());
+		B = new MNKBoard(M, N, K);
+		myWin = first ? MNKGameState.WINP1 : MNKGameState.WINP2;
 		yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
-		TIMEOUT = timeout_in_secs;	
+		TIMEOUT = timeout_in_secs;
+		startingTime = System.currentTimeMillis();
 	}
 
 	/**
 	 * Selects a position among those listed in the <code>FC</code> array.
-   * <p>
-   * Selects a winning cell (if any) from <code>FC</code>, otherwise
-   * selects a cell (if any) that prevents the adversary to win 
-   * with his next move. If both previous cases do not apply, selects
-   * a random cell in <code>FC</code>.
+	 * <p>
+	 * Selects a winning cell (if any) from <code>FC</code>, otherwise
+	 * selects a cell (if any) that prevents the adversary to win
+	 * with his next move. If both previous cases do not apply, selects
+	 * a random cell in <code>FC</code>.
 	 * </p>
-   */
+	 */
 	public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
-		long start = System.currentTimeMillis();
-		if(MC.length > 0) {
-			MNKCell c = MC[MC.length-1]; // Recover the last move from MC
-			B.markCell(c.i,c.j);         // Save the last move in the local MNKBoard
-		}
-		// If there is just one possible move, return immediately
-		if(FC.length == 1)
-			return FC[0];
-		
-		// Check whether there is single move win 
-		for(MNKCell d : FC) {
-			// If time is running out, select a random cell
-			if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(99.0/100.0)) {
-				MNKCell c = FC[rand.nextInt(FC.length)];
-				B.markCell(c.i,c.j);
-				return c;
-			} else if(B.markCell(d.i,d.j) == myWin) {
-				return d;  
-			} else {
-				B.unmarkCell();
-			}
-		}
-		
-		// Check whether there is a single move loss:
-		// 1. mark a random position
-		// 2. check whether the adversary can win
-		// 3. if he can win, select his winning position 
-		int pos   = rand.nextInt(FC.length); 
-		MNKCell c = FC[pos]; // random move
-		B.markCell(c.i,c.j); // mark the random position	
-		for(int k = 0; k < FC.length; k++) {
-			// If time is running out, return the randomly selected  cell
-      if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(99.0/100.0)) {
-				return c;
-			} else if(k != pos) {     
-				MNKCell d = FC[k];
-				if(B.markCell(d.i,d.j) == yourWin) {
-					B.unmarkCell();        // undo adversary move
-					B.unmarkCell();	       // undo my move	 
-					B.markCell(d.i,d.j);   // select his winning position
-					return d;							 // return his winning position
-				} else {
-					B.unmarkCell();	       // undo adversary move to try a new one
-				}	
-			}	
-		}
-		// No win or loss, return the randomly selected move
+		MNKCell c = new MNKCell(0, 0);
+		/*
+		 * long start = System.currentTimeMillis();
+		 * if(MC.length > 0) {
+		 * MNKCell c = MC[MC.length-1]; // Recover the last move from MC
+		 * B.markCell(c.i,c.j); // Save the last move in the local MNKBoard
+		 * }
+		 * // If there is just one possible move, return immediately
+		 * if(FC.length == 1)
+		 * return FC[0];
+		 * 
+		 * // Check whether there is single move win
+		 * for(MNKCell d : FC) {
+		 * // If time is running out, select a random cell
+		 * if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(99.0/100.0)) {
+		 * MNKCell c = FC[rand.nextInt(FC.length)];
+		 * B.markCell(c.i,c.j);
+		 * return c;
+		 * } else if(B.markCell(d.i,d.j) == myWin) {
+		 * return d;
+		 * } else {
+		 * B.unmarkCell();
+		 * }
+		 * }
+		 * 
+		 * // Check whether there is a single move loss:
+		 * // 1. mark a random position
+		 * // 2. check whether the adversary can win
+		 * // 3. if he can win, select his winning position
+		 * int pos = rand.nextInt(FC.length);
+		 * MNKCell c = FC[pos]; // random move
+		 * B.markCell(c.i,c.j); // mark the random position
+		 * for(int k = 0; k < FC.length; k++) {
+		 * // If time is running out, return the randomly selected cell
+		 * if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(99.0/100.0)) {
+		 * return c;
+		 * } else if(k != pos) {
+		 * MNKCell d = FC[k];
+		 * if(B.markCell(d.i,d.j) == yourWin) {
+		 * B.unmarkCell(); // undo adversary move
+		 * B.unmarkCell(); // undo my move
+		 * B.markCell(d.i,d.j); // select his winning position
+		 * return d; // return his winning position
+		 * } else {
+		 * B.unmarkCell(); // undo adversary move to try a new one
+		 * }
+		 * }
+		 * }
+		 * // No win or loss, return the randomly selected move
+		 * return c;
+		 */
 		return c;
+	}
+
+	/*
+	 * public enum MNKGameState {
+	 * OPEN,
+	 * DRAW,
+	 * WINP1,
+	 * WINP2
+	 * }
+	 */
+	public int alphaBeta(MNKBoard board, boolean isMaximizing, int depth, int maxDepth, int alpha, int beta) {
+		if ((System.currentTimeMillis() - startingTime) / 1000.0 > TIMEOUT * (99.0 / 100.0)) { // se sforo il tempo
+			return 0;
+		}
+		int eval;
+		// se facendo una mossa si ottiene la vittoria o se facendo una mossa si riempie la tabella
+		if (!board.gameState().equals(MNKGameState.OPEN) || depth >= maxDepth) {
+			return evaluate();
+		}
+		// se è il turno max
+		if (isMaximizing) {
+			eval = Integer.MAX_VALUE; // eval = infinito
+			// per ogni possibile mossa che posso fare
+			MNKCell[] FC = board.getFreeCells();
+			for (MNKCell d : FC) {
+				board.markCell(d.i, d.j);
+				eval = Math.min(eval, alphaBeta(board, false, depth - 1, maxDepth, alpha, beta));
+				board.unmarkCell();
+				beta = Math.min(eval, beta);
+				if (beta <= alpha) {// alpha cutoff
+					break;
+				}
+			}
+			return eval;
+		}
+		// se è il turno min
+		else {
+			eval = Integer.MIN_VALUE;// eval = -infinito
+			// per ogni possibile mossa che posso fare
+			MNKCell[] FC = board.getFreeCells();
+			for (MNKCell d : FC) {
+				board.markCell(d.i, d.j);
+				eval = Math.max(eval, alphaBeta(board, true, depth - 1, maxDepth, alpha, beta));
+				board.unmarkCell();
+				beta = Math.max(eval, beta);
+				if (beta <= alpha) {// beta cutoff
+					break;
+				}
+			}
+			return eval;
+		}
+	}
+
+	public int evaluate() {
+		return 0;
 	}
 
 	public String playerName() {
