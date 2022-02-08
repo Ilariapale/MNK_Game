@@ -140,6 +140,7 @@ public class SignoraCarla implements MNKPlayer {
 
 		System.out.println("--Terza parte (alphaBeta)--");
 		// No win or loss, return the randomly selected move
+		/*
 		int maxDepth = GetMaxDepth(FC.length);
 		int move = 0, bestScore = Integer.MIN_VALUE, score = bestScore;
 		for (int i = 0; i < B.getFreeCells().length;) {
@@ -161,8 +162,11 @@ public class SignoraCarla implements MNKPlayer {
 			}
 		}
 		// B.markCell(FC[move].i, FC[move].j);
-
 		return FC[move];
+		*/
+		 c = FC[0]; // random move
+		B.markCell(c.i, c.j);
+		return c;
 
 	}
 

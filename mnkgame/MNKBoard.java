@@ -143,12 +143,12 @@ public class MNKBoard {
    */
 	public MNKGameState markCell(int i, int j) throws IndexOutOfBoundsException, IllegalStateException {
 		/*************************************************************************/
-		//System.out.println("mark "+i+", "+j);
+		System.out.println("mark "+i+", "+j);
 		for(MNKCellState[] x : B){
 			for(MNKCellState y : x){
-				//System.out.print(y == MNKCellState.FREE?"__ ":y + " ");
+				System.out.print(y == MNKCellState.FREE?"__ ":y + " ");
 			}
-			//System.out.print("\n");
+			System.out.print("\n");
 		}
 		/*************************************************************************/
 		if(gameState != MNKGameState.OPEN) {
