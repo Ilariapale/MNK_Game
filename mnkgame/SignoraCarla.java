@@ -73,7 +73,7 @@ public class SignoraCarla implements MNKPlayer {
 		if (MC.length > 0) {
 			MNKCell c = MC[MC.length - 1]; // Recover the last move from MC
 			B.markCell(c.i, c.j); // Save the last move in the local MNKBoard
-			System.out.println("c.i : " + c.i + ", c.j : " + c.j);
+			// System.out.println("c.i : " + c.i + ", c.j : " + c.j);
 		}
 		// If there is just one possible move, return immediately
 		if (FC.length == 1) {
@@ -103,14 +103,14 @@ public class SignoraCarla implements MNKPlayer {
 		// 2. check whether the adversary can win
 		// 3. if he can win, select his winning position
 		int pos = rand.nextInt(FC.length);
-		MNKCell c = FC[pos]; // random move
+		MNKCell c = FC[0]; // random move
 		B.markCell(c.i, c.j); // mark the random position
-		for (int k = 0; k < FC.length; k++) {
+		for (int k = 1; k < FC.length; k++) {
 			// If time is running out, return the randomly selected cell
 			if ((System.currentTimeMillis() - startingTime) / 1000.0 > TIMEOUT * (99.0 / 100.0)) {
 				System.out.println("Running out of time!");
 				return c;
-			} else if (k != pos) {
+			} else {
 				MNKCell d = FC[k];
 				if (B.markCell(d.i, d.j) == yourWin) {
 					System.out.println("yourWin");
@@ -125,6 +125,19 @@ public class SignoraCarla implements MNKPlayer {
 			}
 		}
 		B.unmarkCell();
+		// check if adversary would win in FC[0], marking FC[1] as our move
+		c = FC[1];
+		B.markCell(c.i, c.j);
+		MNKCell d = FC[0];
+		if (B.markCell(d.i, d.j) == yourWin) {
+			B.unmarkCell();
+			B.unmarkCell();
+			B.markCell(d.i, d.j);
+		}else{
+			B.unmarkCell();
+		}
+		B.unmarkCell();
+
 		System.out.println("--Terza parte (alphaBeta)--");
 		// No win or loss, return the randomly selected move
 		int maxDepth = GetMaxDepth(FC.length);
@@ -211,9 +224,9 @@ public class SignoraCarla implements MNKPlayer {
 
 		int ret;
 		if (state.equals(myWin)) { // vittoria bot
-			ret = 100 / depth;
+			ret = depth == 0 ? 100 : 100 / depth;
 		} else if (state.equals(yourWin)) { // vittoria avversario
-			ret = -100 / depth;
+			ret = depth == 0 ? -100 : -100 / depth;
 		} else if (state.equals(MNKGameState.DRAW)) { // pareggio
 			ret = 0;
 		} else { // profondità di esplorazione raggiunta

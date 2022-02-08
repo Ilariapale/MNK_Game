@@ -142,13 +142,15 @@ public class MNKBoard {
 	 * @throws IllegalStateException If the game already ended or if <code>i,j</code> is not a free cell
    */
 	public MNKGameState markCell(int i, int j) throws IndexOutOfBoundsException, IllegalStateException {
-		System.out.println("mark "+i+", "+j);
+		/*************************************************************************/
+		//System.out.println("mark "+i+", "+j);
 		for(MNKCellState[] x : B){
 			for(MNKCellState y : x){
-				System.out.print(y == MNKCellState.FREE?"__ ":y + " ");
+				//System.out.print(y == MNKCellState.FREE?"__ ":y + " ");
 			}
-			System.out.print("\n");
+			//System.out.print("\n");
 		}
+		/*************************************************************************/
 		if(gameState != MNKGameState.OPEN) {
 			throw new IllegalStateException("Game ended!");
 		} else if(i < 0 || i >= M || j < 0 || j >= N) {
