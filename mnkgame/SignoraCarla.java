@@ -23,6 +23,7 @@
 package mnkgame;
 
 import java.util.Random;
+import java.util.*;
 
 /**
  * Software player only a bit smarter than random.
@@ -31,7 +32,7 @@ import java.util.Random;
  * randomly.
  * </p>
  */
-public class SignoraCarla implements MNKPlayer {
+public class SignoraCarla implements MNKPlayer  {
 	private Random rand;
 	private MNKBoard B;
 	private MNKGameState myWin;
@@ -39,6 +40,9 @@ public class SignoraCarla implements MNKPlayer {
 	private int TIMEOUT;
 	private long startingTime;
 	private double powLimit;
+
+	private Set<MNKGameState> winStates = new HashSet<MNKGameState> (); 
+	private Set<MNKGameState> loseStates = new HashSet<MNKGameState> (); 
 
 	/**
 	 * Default empty constructor
@@ -55,6 +59,7 @@ public class SignoraCarla implements MNKPlayer {
 		TIMEOUT = timeout_in_secs;
 		startingTime = System.currentTimeMillis();
 		powLimit = timeout_in_secs * Math.pow(10, 9);
+		
 	}
 
 	/**
@@ -107,7 +112,7 @@ public class SignoraCarla implements MNKPlayer {
 		B.markCell(c.i, c.j); // mark the random position
 		for (int k = 1; k < FC.length; k++) {
 			// If time is running out, return the randomly selected cell
-			if ((System.currentTimeMillis() - startingTime) / 1000.0 > TIMEOUT * (99.0 / 100.0)) {
+			if ((System.currentTimeMillis() - startingTime) / 1000.0 > TIMEOUT*10 * (99.0 / 100.0)) {
 				System.out.println("Running out of time!");
 				return c;
 			} else {
@@ -139,8 +144,7 @@ public class SignoraCarla implements MNKPlayer {
 		B.unmarkCell();
 
 		System.out.println("--Terza parte (alphaBeta)--");
-		// No win or loss, return the randomly selected move
-		/*
+		
 		int maxDepth = GetMaxDepth(FC.length);
 		int move = 0, bestScore = Integer.MIN_VALUE, score = bestScore;
 		for (int i = 0; i < B.getFreeCells().length;) {
@@ -148,7 +152,7 @@ public class SignoraCarla implements MNKPlayer {
 			if ((System.currentTimeMillis() - startingTime) / 1000.0 > TIMEOUT * (99.0 / 100.0)) { // se ho sforato il
 																									// timeout
 				// DEBUG OUTPUT
-				// System.out.println("OVERTIME EVITATO");
+				 System.out.println("OVERTIME EVITATO");
 				break;
 			} else {
 				c = FC[i];
@@ -161,12 +165,12 @@ public class SignoraCarla implements MNKPlayer {
 				}
 			}
 		}
-		// B.markCell(FC[move].i, FC[move].j);
+		B.markCell(FC[move].i, FC[move].j);
 		return FC[move];
-		*/
-		 c = FC[0]; // random move
-		B.markCell(c.i, c.j);
-		return c;
+		
+		// c = FC[0]; // random move
+		//B.markCell(c.i, c.j);
+		//return c;
 
 	}
 
@@ -185,21 +189,21 @@ public class SignoraCarla implements MNKPlayer {
 		int eval;
 		// se facendo una mossa si ottiene la vittoria o se facendo una mossa si riempie
 		// la tabella
-		if (!board.gameState().equals(MNKGameState.OPEN) || depth >= maxDepth) {
+		if (!board.gameState().equals(MNKGameState.OPEN) || depth >= maxDepth) {//(if depth == 0 or isLeaf(T))
 			return Evaluate(board.gameState(), depth, maxDepth);
 		}
 		// se è il turno max
-		if (isMaximizing) {
-			eval = Integer.MAX_VALUE; // eval = infinito
+		if (isMaximizing) { //(else if playerA==true)
+			eval = Integer.MIN_VALUE;// eval = -infinito
 			// per ogni possibile mossa che posso fare
 			MNKCell[] FC = board.getFreeCells();
 			// System.out.println("FC:" + FC);
 			for (MNKCell d : FC) {
 				board.markCell(d.i, d.j);
-				eval = Math.min(eval, alphaBeta(board, false, depth - 1, maxDepth, alpha, beta));
+				eval = Math.max(eval, alphaBeta(board, false, depth - 1, maxDepth, alpha, beta));
 				board.unmarkCell();
-				beta = Math.min(eval, beta);
-				if (beta <= alpha) {// alpha cutoff
+				alpha = Math.max(eval, alpha);
+				if (beta <= alpha) {// beta cutoff
 					break;
 				}
 			}
@@ -207,16 +211,16 @@ public class SignoraCarla implements MNKPlayer {
 		}
 		// se è il turno min
 		else {
-			eval = Integer.MIN_VALUE;// eval = -infinito
+			eval = Integer.MAX_VALUE; // eval = infinito
 			// per ogni possibile mossa che posso fare
 			MNKCell[] FC = board.getFreeCells();
 			// System.out.println("FC:" + FC);
 			for (MNKCell d : FC) {
 				board.markCell(d.i, d.j);
-				eval = Math.max(eval, alphaBeta(board, true, depth - 1, maxDepth, alpha, beta));
+				eval = Math.min(eval, alphaBeta(board, true, depth - 1, maxDepth, alpha, beta));
 				board.unmarkCell();
-				alpha = Math.max(eval, alpha);
-				if (beta <= alpha) {// beta cutoff
+				beta = Math.min(eval, beta);
+				if (beta <= alpha) {// alpha cutoff
 					break;
 				}
 			}
@@ -227,10 +231,12 @@ public class SignoraCarla implements MNKPlayer {
 	private int Evaluate(MNKGameState state, int depth, int maxDepth) {
 
 		int ret;
-		if (state.equals(myWin)) { // vittoria bot
+	    if (state.equals(myWin)) { // vittoria bot
 			ret = depth == 0 ? 100 : 100 / depth;
+			//winStates.add(state);
 		} else if (state.equals(yourWin)) { // vittoria avversario
 			ret = depth == 0 ? -100 : -100 / depth;
+			//loseStates.add(state);
 		} else if (state.equals(MNKGameState.DRAW)) { // pareggio
 			ret = 0;
 		} else { // profondità di esplorazione raggiunta
@@ -252,6 +258,17 @@ public class SignoraCarla implements MNKPlayer {
 			counter = counter * n;
 		} while (counter < powLimit && n > 1);
 		return ret;
+	}
+
+	private void SaveStatus(MNKGameState state, boolean win){
+		if(win) winStates.add(state);
+		else loseStates.add(state);
+	}
+
+	private int CheckStatus(MNKGameState state){ //return -1 if state is not in set, 0 if it is a lose state, 1 if it is a win state
+		if(winStates.contains(state)) return 1;
+		if(loseStates.contains(state)) return 0;
+		return -1;
 	}
 
 	public String playerName() {
