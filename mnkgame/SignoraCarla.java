@@ -41,8 +41,8 @@ public class SignoraCarla implements MNKPlayer  {
 	private long startingTime;
 	private double powLimit;
 
-	private Set<MNKGameState> winStates = new HashSet<MNKGameState> (); 
-	private Set<MNKGameState> loseStates = new HashSet<MNKGameState> (); 
+	private Set<SavedStates> winStates = new HashSet<SavedStates> (); 
+	private Set<SavedStates> loseStates = new HashSet<SavedStates> (); 
 
 	/**
 	 * Default empty constructor
@@ -260,12 +260,13 @@ public class SignoraCarla implements MNKPlayer  {
 		return ret;
 	}
 
-	private void SaveStatus(MNKGameState state, boolean win){
-		if(win) winStates.add(state);
-		else loseStates.add(state);
+	private void SaveStatus(MNKGameState state, int eval, boolean turn, boolean win){
+		if(win) winStates.add(new SavedStates(state, eval, turn));
+		else loseStates.add(new SavedStates(state, eval, turn));
 	}
 
-	private int CheckStatus(MNKGameState state){ //return -1 if state is not in set, 0 if it is a lose state, 1 if it is a win state
+	private int CheckStatus(MNKGameState state, boolean turn){ //return -1 if state is not in set, 0 if it is a lose state, 1 if it is a win state
+		SavedStates s = new SavedStates(state, 0, turn);
 		if(winStates.contains(state)) return 1;
 		if(loseStates.contains(state)) return 0;
 		return -1;
