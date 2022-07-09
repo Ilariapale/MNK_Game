@@ -1,24 +1,50 @@
 package mnkgame;
 
-import java.util.Random;
 import java.util.*;
+import java.util.Arrays;
 
 class SavedState {
-   private MNKCell[] cells;
-   private boolean turn;
+   private Integer[] cells;
 
    // constructor
-   public SavedState(MNKCell[] cells, boolean turn) {
-      this.cells = cells;
-      this.turn = turn;
+   public SavedState(MNKCell[] c) {
+      this.cells = toHash(c);
    }
 
-   // getter  
-   public MNKCell[] getCells() { return cells; }
-   public boolean getTurn() { return turn; }
+   // getter
+   public Integer[] getCells() {
+      return cells;
+   }
 
-   // setter
-   public void setBoard(MNKCell[] cells) { this.cells = cells; }
-   public void setTurn(boolean turn) { this.turn = turn; }
+   private Integer[] toHash(MNKCell[] c) {
+      Integer[] temp = new Integer[c.length];
+      for (int i = 0; i < c.length; i++) {
+         temp[i] = c[i].hashCode();
+      }
+      Arrays.sort(temp);
+      return temp;
+   }
 
+   @Override
+   public boolean equals(Object obj) {
+      System.out.println("EQUALS--------------");
+      // same instance
+      if (obj == this) {
+         return true;
+      }
+      // null
+      if (obj == null) {
+         return false;
+      }
+      // type
+      if (!getClass().equals(obj.getClass())) {
+         return false;
+      }
+      // cast and compare state
+      SavedState other = (SavedState) obj;
+      // Arrays.sort(other.cells);
+      System.out.println(this.cells + ", " + other.cells);
+      // Set<MNKCell[]> set = new HashSet<MNKCell[]>(other.cells);
+      return (Arrays.equals(this.cells, other.cells));
+   }
 }
