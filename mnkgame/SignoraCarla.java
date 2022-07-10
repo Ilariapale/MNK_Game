@@ -109,7 +109,6 @@ public class SignoraCarla implements MNKPlayer {
 		// 1. mark a random position
 		// 2. check whether the adversary can win
 		// 3. if he can win, select his winning position
-		int pos = rand.nextInt(FC.length);
 		MNKCell c = FC[0]; // random move
 		B.markCell(c.i, c.j); // mark the random position
 
@@ -127,7 +126,6 @@ public class SignoraCarla implements MNKPlayer {
 					B.markCell(d.i, d.j); // select his winning position
 					return d; // return his winning position
 				} else {
-					System.out.println("Unmark");
 					B.unmarkCell(); // undo adversary move to try a new one
 				}
 			}
@@ -150,10 +148,9 @@ public class SignoraCarla implements MNKPlayer {
 
 		int maxDepth = GetMaxDepth(FC.length);
 		int move = 0, bestScore = Integer.MIN_VALUE, score = bestScore;
-		for (int i = 0; i < B.getFreeCells().length;) {
-
-			if ((System.currentTimeMillis() - startingTime) / 1000.0 > TIMEOUT * (99.0 / 100.0)) { // se ho sforato il
-																									// timeout
+		for (int i = 0; i < B.getFreeCells().length; i++) {
+			System.out.println("i = " + i);
+			if ((System.currentTimeMillis() - startingTime) / 1000.0 > TIMEOUT * (99.0 / 100.0)) { // timeout
 				// DEBUG OUTPUT
 				System.out.println("OVERTIME EVITATO");
 				break;
@@ -171,11 +168,6 @@ public class SignoraCarla implements MNKPlayer {
 		B.markCell(FC[move].i, FC[move].j);
 
 		return FC[move];
-
-		// c = FC[0]; // random move
-		// B.markCell(c.i, c.j);
-		// return c;
-
 	}
 
 	/*
@@ -204,7 +196,7 @@ public class SignoraCarla implements MNKPlayer {
 			MNKCell[] FC = board.getFreeCells();
 			// System.out.println("FC:" + FC);
 			tempEval = CheckStatus(board.getMarkedCells());
-			System.out.println("TEMP EVAL MAX = " + tempEval);
+			// System.out.println("TEMP EVAL MAX = " + tempEval);
 			if (tempEval == 0) {
 				for (MNKCell d : FC) {
 					board.markCell(d.i, d.j);
@@ -212,6 +204,8 @@ public class SignoraCarla implements MNKPlayer {
 					board.unmarkCell();
 					alpha = Math.max(eval, alpha);
 					if (beta <= alpha) {// beta cutoff
+						// System.out.println("BETA CUTOFF");
+
 						break;
 					}
 				}
@@ -233,7 +227,7 @@ public class SignoraCarla implements MNKPlayer {
 			MNKCell[] FC = board.getFreeCells();
 			// System.out.println("FC:" + FC);
 			tempEval = CheckStatus(board.getMarkedCells());
-			System.out.println("TEMP EVAL MIN = " + tempEval);
+			// System.out.println("TEMP EVAL MIN = " + tempEval);
 			if (tempEval == 0) {
 				for (MNKCell d : FC) {
 					board.markCell(d.i, d.j);
@@ -241,6 +235,7 @@ public class SignoraCarla implements MNKPlayer {
 					board.unmarkCell();
 					beta = Math.min(eval, beta);
 					if (beta <= alpha) {// alpha cutoff
+						// System.out.println("ALPHA CUTOFF");
 						break;
 					}
 				}
@@ -258,10 +253,10 @@ public class SignoraCarla implements MNKPlayer {
 	private int Evaluate(MNKGameState state, int depth, int maxDepth) {
 
 		int ret;
-		if (state.equals(myWin)) { // vittoria bot
+		if (state.equals(yourWin)) { // vittoria bot
 			ret = depth == 0 ? 100 : 100 / depth;
 			// winStates.add(state);
-		} else if (state.equals(yourWin)) { // vittoria avversario
+		} else if (state.equals(myWin)) { // vittoria avversario
 			ret = depth == 0 ? -100 : -100 / depth;
 			// loseStates.add(state);
 		} else if (state.equals(MNKGameState.DRAW)) { // pareggio
@@ -271,11 +266,12 @@ public class SignoraCarla implements MNKPlayer {
 			// DEBUG OUTPUT
 			// System.out.println("PROFONDITA' RAGGIUNTA");
 		}
+		// System.out.println("EVAL = " + ret);
 		return ret;
 	}
 
 	private int GetMaxDepth(int len) {
-		long n = len, counter = n;
+		long n = len, counter = len;
 		int ret = 1;
 		do {
 			n = n - 1;
@@ -289,27 +285,21 @@ public class SignoraCarla implements MNKPlayer {
 
 	private void SaveStatus(MNKCell[] cells, int eval, boolean turn, boolean win) {
 		SavedState s = new SavedState(cells);
-		if (win) {
-			winStates.add(s);
-			// System.out.println("stato salvato in win");
-		} else {
-			loseStates.add(s);
-			// System.out.println("stato salvato in lose");
-		}
+		winStates.add(s);
 	}
 
 	private int CheckStatus(MNKCell[] cells) {
 		// System.out.println("ENTRATO");
 		SavedState s = new SavedState(cells);
-		System.out.println(s.getCells());
+		// System.out.println(s.getCells());
 		if (winStates.contains(s)) {
 			System.out.println("stato       trovato in win");
 			return 1;
 		}
-		if (loseStates.contains(s)) {
-			System.out.println("stato       trovato in lose");
-			return 2;
-		}
+		// if (loseStates.contains(s)) {
+		// System.out.println("stato trovato in lose");
+		// return 2;
+		// }
 		return 0;
 	}
 

@@ -8,6 +8,8 @@ class SavedState {
 
    // constructor
    public SavedState(MNKCell[] c) {
+      // System.out.println("CREATO");
+
       this.cells = toHash(c);
    }
 
@@ -43,7 +45,7 @@ class SavedState {
       // cast and compare state
       SavedState other = (SavedState) obj;
       // Arrays.sort(other.cells);
-      System.out.println(this.cells + ", " + other.cells);
+      System.out.println(this.cells + ", " + other.cells + " " + Arrays.equals(this.cells, other.cells));
       // Set<MNKCell[]> set = new HashSet<MNKCell[]>(other.cells);
       return (Arrays.equals(this.cells, other.cells));
    }
