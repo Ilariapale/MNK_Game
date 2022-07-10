@@ -100,7 +100,7 @@ public class SignoraCarla implements MNKPlayer {
 				System.out.println("myWin");
 				return d;
 			} else {
-				System.out.println("Unmark");
+				// System.out.println("Unmark");
 				B.unmarkCell();
 			}
 		}
@@ -253,10 +253,10 @@ public class SignoraCarla implements MNKPlayer {
 	private int Evaluate(MNKGameState state, int depth, int maxDepth) {
 
 		int ret;
-		if (state.equals(yourWin)) { // vittoria bot
+		if (state.equals(myWin)) { // vittoria bot
 			ret = depth == 0 ? 100 : 100 / depth;
 			// winStates.add(state);
-		} else if (state.equals(myWin)) { // vittoria avversario
+		} else if (state.equals(yourWin)) { // vittoria avversario
 			ret = depth == 0 ? -100 : -100 / depth;
 			// loseStates.add(state);
 		} else if (state.equals(MNKGameState.DRAW)) { // pareggio

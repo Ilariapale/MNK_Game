@@ -45,7 +45,8 @@ class SavedState {
       // cast and compare state
       SavedState other = (SavedState) obj;
       // Arrays.sort(other.cells);
-      System.out.println(this.cells + ", " + other.cells + " " + Arrays.equals(this.cells, other.cells));
+      if (Arrays.equals(this.cells, other.cells))
+         System.out.println(this.cells + ", " + other.cells + " " + true);
       // Set<MNKCell[]> set = new HashSet<MNKCell[]>(other.cells);
       return (Arrays.equals(this.cells, other.cells));
    }
