@@ -1,6 +1,5 @@
 package mnkgame;
 
-import java.util.*;
 import java.util.Arrays;
 
 class SavedState {
@@ -9,7 +8,6 @@ class SavedState {
    // constructor
    public SavedState(MNKCell[] c) {
       // System.out.println("CREATO");
-
       this.cells = toHash(c);
    }
 
@@ -29,7 +27,7 @@ class SavedState {
 
    @Override
    public boolean equals(Object obj) {
-      System.out.println("EQUALS--------------");
+      // System.out.println("EQUALS--------------");
       // same instance
       if (obj == this) {
          return true;
@@ -45,8 +43,8 @@ class SavedState {
       // cast and compare state
       SavedState other = (SavedState) obj;
       // Arrays.sort(other.cells);
-      if (Arrays.equals(this.cells, other.cells))
-         System.out.println(this.cells + ", " + other.cells + " " + true);
+      // if (Arrays.equals(this.cells, other.cells))
+      // System.out.println(this.cells + ", " + other.cells + " " + true);
       // Set<MNKCell[]> set = new HashSet<MNKCell[]>(other.cells);
       return (Arrays.equals(this.cells, other.cells));
    }
